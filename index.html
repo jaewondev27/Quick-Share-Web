@@ -2,23 +2,21 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Quick Share</title>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
     <style>
         :root {
-            /* 흑백 테마로 수정 */
             --bg-color: #ffffff;
             --card-bg: #ffffff;
             --text-main: #000000;
             --text-sub: #666666;
-            --primary-color: #eeeeee; /* 기기 아이콘 등 배경 (연한 회색) */
-            --accent-color: #000000; /* 로딩 링 등 포인트 (검은색) */
-            --btn-dark: #000000; /* 버튼 (검은색) */
+            --primary-color: #eeeeee; 
+            --accent-color: #000000; 
+            --btn-dark: #000000; 
             --border-radius: 24px;
         }
 
-        /* 모바일 터치 파란색 박스(하이라이트) 및 아웃라인 제거 적용 */
         * { 
             box-sizing: border-box; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
@@ -27,79 +25,118 @@
             -webkit-tap-highlight-color: transparent; 
             outline: none; 
         }
-        body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow-x: hidden; }
+        
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow-x: hidden;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
 
-        /* Header & Tabs */
+        .ripple-target { position: relative; overflow: hidden; }
+        .ripple {
+            position: absolute; border-radius: 50%; transform: scale(0);
+            animation: ripple-anim 500ms linear; background-color: rgba(0, 0, 0, 0.15); pointer-events: none;
+        }
+        @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+
         header { padding: 20px 20px 10px; }
         .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .header-left, .header-right { display: flex; align-items: center; gap: 16px; }
         .header-title { font-weight: 500; font-size: 22px; }
-        .icon-btn { background: #f5f5f5; border: none; cursor: pointer; color: var(--text-sub); display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 40px; height: 40px; }
+        .icon-btn { background: #f5f5f5; border: none; cursor: pointer; color: var(--text-sub); display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 40px; height: 40px; transition: transform 0.2s, background-color 0.2s; }
+        .icon-btn:active { transform: scale(0.9); }
         .header-right .icon-btn { background-color: transparent; }
         .tabs { display: flex; gap: 10px; background: #f0f0f0; padding: 5px; border-radius: 20px; }
-        .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 15px; font-size: 15px; font-weight: 500; color: var(--text-sub); cursor: pointer; transition: 0.3s; }
-        .tab-btn.active { background: white; color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 15px; font-size: 15px; font-weight: 500; color: var(--text-sub); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .tab-btn.active { background: white; color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.02); }
 
-        /* Main Content */
-        main { flex: 1; padding: 0 20px 20px; overflow-y: auto; }
+        main { 
+            flex: 1; padding: 0 20px 20px; overflow-y: auto; 
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15px, black calc(100% - 15px), transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, black 15px, black calc(100% - 15px), transparent 100%);
+        }
         .section-title { font-size: 14px; font-weight: 600; color: var(--text-sub); margin: 20px 0 10px 10px; }
-        .card { background-color: var(--card-bg); border-radius: var(--border-radius); padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
+        .card { background-color: var(--card-bg); border-radius: var(--border-radius); padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; transition: transform 0.2s; }
         
-        /* My Profile */
         .profile-wrap { display: flex; align-items: center; gap: 15px; }
         .profile-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
         .profile-name { font-size: 18px; font-weight: 500; }
 
-        /* File Cards */
-        .files-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-        .files-info-wrap { display: flex; align-items: center; gap: 15px; }
+        .files-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: opacity 0.2s; border-radius: 12px; padding: 5px; margin: -5px; }
+        .files-header:active { opacity: 0.6; }
+        .files-info-wrap { display: flex; align-items: center; gap: 15px; pointer-events: none; }
         .check-icon { background-color: #f5f5f5; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--text-main); }
         .files-text { font-size: 16px; font-weight: 500; }
         .files-subtext { font-size: 14px; color: var(--text-sub); margin-top: 4px; }
         .file-preview-container { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-        .file-card { display: flex; align-items: center; justify-content: space-between; background: #fafafa; padding: 10px 15px; border-radius: 16px; border: 1px solid #eee; }
-        .file-card-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
+        .file-card { display: flex; align-items: center; justify-content: space-between; background: #fafafa; padding: 10px 15px; border-radius: 16px; border: 1px solid #eee; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .file-card-info { display: flex; align-items: center; gap: 12px; overflow: hidden; pointer-events: none; }
         .file-preview-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background: #e0e0e0; display: flex; align-items: center; justify-content: center; color: gray; }
         .file-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
-        .delete-btn { background: none; border: none; color: #ff5252; cursor: pointer; padding: 5px; }
+        .delete-btn { background: none; border: none; color: #ff5252; cursor: pointer; padding: 5px; transition: transform 0.2s; }
+        .delete-btn:active { transform: scale(0.8); }
 
-        /* Devices & Receiver Loading Animation */
-        .devices-scroll { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+        .devices-scroll { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 10px; padding-top: 20px; margin-top: -20px; scrollbar-width: none; }
         .devices-scroll::-webkit-scrollbar { display: none; }
-        .device-item { display: flex; flex-direction: column; align-items: center; min-width: 80px; cursor: pointer; }
+        .device-item { display: flex; flex-direction: column; align-items: center; min-width: 80px; cursor: pointer; transition: transform 0.2s; border-radius: 16px; padding: 5px; margin: -5px; }
         .device-icon-wrap { 
             position: relative; width: 65px; height: 65px; border-radius: 50%; 
             background-color: var(--primary-color); display: flex; align-items: center; 
-            justify-content: center; margin-bottom: 8px; 
+            justify-content: center; margin-bottom: 8px; transition: transform 0.2s;
         }
         .device-item:active .device-icon-wrap { transform: scale(0.95); }
-        .device-name { font-size: 14px; font-weight: 500; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-        
-        /* The Loading Ring for Target Device */
-        .loading-ring {
-            position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
-            border: 3px solid transparent; border-top-color: var(--accent-color);
-            border-radius: 50%; z-index: 1; animation: spin 1s linear infinite; display: none;
-        }
-        .device-icon-wrap.loading .loading-ring { display: block; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .device-name { font-size: 14px; font-weight: 500; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; pointer-events: none; }
 
-        /* Modals Base */
+        .device-icon-wrap.canceled { background-color: #ff9800 !important; transition: background-color 0.3s; }
+        .device-icon-wrap.canceled .ui-load-glx,
+        .device-icon-wrap.canceled .material-symbols-outlined { display: none; }
+        .device-icon-wrap.canceled::after { 
+            content: "!"; color: white; font-size: 36px; font-weight: bold; 
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+        .ui-load-glx {
+            display: none; 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            align-items: center; justify-content: center; z-index: 10;
+        }
+        .device-icon-wrap.loading .ui-load-glx { display: flex; }
+        .ui-load-glx > .gbx { width: 20px; height: 20px; position: relative; transform: scale(1.0); }
+        .ui-load-glx > .gbx .bx { position: absolute; width: 100%; height: 100%; animation: rotateFull 1.0s linear infinite; }
+        .ui-load-glx > .gbx .bx i { position: absolute; width: 100%; height: 100%; animation: moveDistance 0.5s alternate infinite ease-in-out; }
+        .ui-load-glx > .gbx .bx i::before { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 5px; height: 5px; background: #0481ff; border-radius: 50%; content: ""; }
+        .ui-load-glx > .gbx .bx i:first-child::before { background: #00d593; }
+        .ui-load-glx > .gbx .bx i:nth-child(1) { --angle: 0deg; }
+        .ui-load-glx > .gbx .bx i:nth-child(2) { --angle: 90deg; }
+        .ui-load-glx > .gbx .bx i:nth-child(3) { --angle: 180deg; }
+        .ui-load-glx > .gbx .bx i:nth-child(4) { --angle: 270deg; }
+        @keyframes moveDistance { 0% { transform: rotate(var(--angle)) translateY(-5px); } 100% { transform: rotate(var(--angle)) translateY(-10px); } }
+        @keyframes rotateFull { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 9999; visibility: hidden; opacity: 0; transition: all 0.3s ease; }
         .modal-overlay.active { visibility: visible; opacity: 1; }
-        .modal-content { background: white; padding: 25px; border-radius: 24px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-content { background: white; padding: 25px; border-radius: 24px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: translateY(20px) scale(0.9); }
+        .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+        
         .modal-title { margin-bottom: 15px; font-size: 18px; font-weight: bold; }
         .modal-desc { font-size: 14px; color: var(--text-sub); margin-bottom: 20px; line-height: 1.4; }
         .modal-actions { display: flex; gap: 10px; width: 100%; }
-        .modal-btn { flex: 1; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; }
+        .modal-btn { flex: 1; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: transform 0.2s, background-color 0.2s; }
+        .modal-btn:active { transform: scale(0.95); }
         .btn-primary { background-color: var(--btn-dark); color: white; }
         .btn-secondary { background-color: #e0e0e0; color: var(--text-main); }
         
-        /* Input & Progress Modal overrides */
-        .modal-input { width: 100%; padding: 15px; border: 1px solid #ccc; border-radius: 12px; font-size: 16px; margin-bottom: 20px; outline: none; }
+        .modal-input { width: 100%; padding: 15px; border: 1px solid #ccc; border-radius: 12px; font-size: 16px; margin-bottom: 20px; outline: none; transition: border-color 0.2s; }
+        .modal-input:focus { border-color: var(--accent-color); }
         .progress-container { width: 100%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin: 20px 0 10px 0; }
-        /* 진행률 막대 초록색-하늘색 그라데이션 적용 */
-        .progress-bar { width: 0%; height: 100%; background: linear-gradient(to right, #4caf50, #87ceeb); transition: width 0.2s linear; }
+        .progress-bar { width: 0%; height: 100%; background: linear-gradient(to right, #4caf50, #87ceeb); transition: width 0.3s ease-in-out; }
         .progress-text { font-size: 16px; font-weight: bold; color: var(--text-main); margin-bottom: 10px; }
 
         #file-input-hidden { display: none; }
@@ -113,7 +150,7 @@
             <div class="modal-title">기기 이름 설정</div>
             <div class="modal-desc">주변 기기에 표시될 이름을 입력해주세요.</div>
             <input type="text" id="userNameInput" class="modal-input" placeholder="예: 내 스마트폰" autocomplete="off">
-            <button class="modal-btn btn-primary" style="width: 100%;" onclick="saveName()">시작하기</button>
+            <button class="modal-btn btn-primary ripple-target" style="width: 100%;" onclick="saveName()">시작하기</button>
         </div>
     </div>
 
@@ -121,7 +158,7 @@
         <div class="modal-content">
             <div class="modal-title" id="alertTitle">알림</div>
             <div class="modal-desc" id="alertDesc">메시지</div>
-            <button class="modal-btn btn-primary" style="width: 100%;" onclick="closeAlert()">확인</button>
+            <button class="modal-btn btn-primary ripple-target" style="width: 100%;" onclick="closeAlert()">확인</button>
         </div>
     </div>
 
@@ -130,8 +167,8 @@
             <div class="modal-title" id="confirmTitle">확인</div>
             <div class="modal-desc" id="confirmDesc">메시지</div>
             <div class="modal-actions">
-                <button class="modal-btn btn-secondary" onclick="closeConfirm(false)">취소</button>
-                <button class="modal-btn btn-primary" onclick="closeConfirm(true)">확인</button>
+                <button class="modal-btn btn-secondary ripple-target" onclick="closeConfirm(false)">취소</button>
+                <button class="modal-btn btn-primary ripple-target" onclick="closeConfirm(true)">확인</button>
             </div>
         </div>
     </div>
@@ -142,8 +179,8 @@
             <div class="modal-title" id="incomingTitle">파일 수신</div>
             <div class="modal-desc" id="incomingDesc">누군가 파일을 보냈습니다.</div>
             <div class="modal-actions">
-                <button class="modal-btn btn-secondary" onclick="handleIncoming(false)">거부</button>
-                <button class="modal-btn btn-primary" onclick="handleIncoming(true)">허용</button>
+                <button class="modal-btn btn-secondary ripple-target" onclick="handleIncoming(false)">거부</button>
+                <button class="modal-btn btn-primary ripple-target" onclick="handleIncoming(true)">허용</button>
             </div>
         </div>
     </div>
@@ -160,14 +197,14 @@
     <header>
         <div class="header-top">
             <div class="header-left">
-                <button class="icon-btn"><span class="material-symbols-outlined">arrow_back</span></button>
+                <button class="icon-btn ripple-target" onclick="closeApp()"><span class="material-symbols-outlined">arrow_back</span></button>
                 <span class="header-title">Quick Share</span>
             </div>
-            <div class="header-right"><button class="icon-btn"><span class="material-symbols-outlined">more_vert</span></button></div>
+            <div class="header-right"><button class="icon-btn ripple-target"><span class="material-symbols-outlined">more_vert</span></button></div>
         </div>
         <div class="tabs">
-            <button class="tab-btn active" id="tab-send" onclick="switchTab('send')">보내기</button>
-            <button class="tab-btn" id="tab-receive" onclick="switchTab('receive')">받기</button>
+            <button class="tab-btn active ripple-target" id="tab-send" onclick="switchTab('send')">보내기</button>
+            <button class="tab-btn ripple-target" id="tab-receive" onclick="switchTab('receive')">받기</button>
         </div>
     </header>
 
@@ -180,7 +217,7 @@
             </div>
 
             <div class="card">
-                <div class="files-header" onclick="document.getElementById('file-input-hidden').click()">
+                <div class="files-header ripple-target" onclick="document.getElementById('file-input-hidden').click()">
                     <div class="files-info-wrap">
                         <div class="check-icon"><span class="material-symbols-outlined">add</span></div>
                         <div>
@@ -199,6 +236,14 @@
                 <div class="devices-scroll" id="nearbyDevicesContainer">
                     <p style="font-size: 13px; color: gray; width: 100%; text-align: center; padding: 20px 0;">주변 기기를 찾는 중...</p>
                 </div>
+            </div>
+
+            <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; padding-right:10px;">
+                <span>보낸 기록</span>
+                <button onclick="clearSendHistory()" style="background:none; border:none; color:var(--text-sub); cursor:pointer; font-size:12px;">전체 삭제</button>
+            </div>
+            <div id="sendHistoryContainer" style="margin-bottom: 20px;">
+                <p style="font-size: 14px; color: gray; text-align: center; padding: 20px 0;">보낸 기록이 없습니다.</p>
             </div>
         </div>
 
@@ -221,8 +266,29 @@
         let activeTargetDeviceId = null; 
         let incomingBatch = null; 
         let isReceivingMode = false; 
+        let uploadController = null; 
 
-        // --- Custom Modal Functions ---
+        document.addEventListener('pointerdown', function(e) {
+            let target = e.target.closest('.ripple-target');
+            if (!target) return;
+            const rect = target.getBoundingClientRect();
+            const circle = document.createElement('span');
+            const diameter = Math.max(rect.width, rect.height);
+            const radius = diameter / 2;
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${e.clientX - rect.left - radius}px`;
+            circle.style.top = `${e.clientY - rect.top - radius}px`;
+            circle.classList.add('ripple');
+            const existingRipple = target.querySelector('.ripple');
+            if (existingRipple) existingRipple.remove();
+            target.appendChild(circle);
+            setTimeout(() => { circle.remove(); }, 500);
+        });
+
+        function closeApp() {
+            if(window.history.length > 1) { window.history.back(); } else { window.close(); }
+        }
+
         let confirmCallback = null;
         function customAlert(title, desc) {
             document.getElementById('alertTitle').innerText = title;
@@ -243,12 +309,8 @@
             confirmCallback = null;
         }
 
-        // --- Init ---
         window.onload = () => {
-            if (!currentUser) {
-                document.getElementById('nameModal').classList.add('active');
-                document.getElementById('userNameInput').focus();
-            } else { initializeApp(); }
+            if (!currentUser) { document.getElementById('nameModal').classList.add('active'); document.getElementById('userNameInput').focus(); } else { initializeApp(); }
         };
 
         function saveName() {
@@ -264,10 +326,58 @@
             document.getElementById('displayUserName').innerText = currentUser;
             document.getElementById('profileImage').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser)}&background=random`;
             document.getElementById('main-content').style.opacity = '1';
-            
+            renderHistory(); 
+            renderSendHistory(); 
             pollServer();
             setInterval(pollServer, 3000); 
             setInterval(checkSenderStatus, 2000); 
+        }
+
+        function saveReceiveHistory(filename, senderName) {
+            let history = JSON.parse(localStorage.getItem('quickShareHistory') || '[]');
+            history.unshift({ filename, senderName, date: new Date().toLocaleString() });
+            localStorage.setItem('quickShareHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('incomingFilesContainer');
+            let history = JSON.parse(localStorage.getItem('quickShareHistory') || '[]');
+            if (history.length === 0) { container.innerHTML = `<p style="font-size: 14px; color: gray; text-align: center; padding: 40px 0;">수신 기록이 없습니다.<br>대기 중인 파일이 감지되면 자동으로 모달이 표시됩니다.</p>`; return; }
+            container.innerHTML = history.map(h => `<div class="file-card" style="margin-bottom:10px;"><div class="file-card-info" style="flex-direction:column; align-items:flex-start; gap:4px;"><span class="file-name" style="font-weight:bold; max-width:100%;">${h.filename}</span><span style="font-size:12px; color:gray;">보낸 사람: ${h.senderName} | ${h.date}</span></div></div>`).join('');
+        }
+
+        function saveSendHistory(filename, targetName, batchId) {
+            let history = JSON.parse(localStorage.getItem('quickShareSendHistory') || '[]');
+            history.unshift({ filename, targetName, batchId, date: new Date().toLocaleString() });
+            localStorage.setItem('quickShareSendHistory', JSON.stringify(history));
+            renderSendHistory();
+        }
+
+        // --- 사용자 요청: 취소/거절 시 기록에서 삭제 로직 ---
+        function removeFromSendHistory(batchId) {
+            let history = JSON.parse(localStorage.getItem('quickShareSendHistory') || '[]');
+            let filtered = history.filter(h => h.batchId !== batchId);
+            localStorage.setItem('quickShareSendHistory', JSON.stringify(filtered));
+            renderSendHistory();
+        }
+
+        function renderSendHistory() {
+            const container = document.getElementById('sendHistoryContainer');
+            let history = JSON.parse(localStorage.getItem('quickShareSendHistory') || '[]');
+            if (history.length === 0) { container.innerHTML = `<p style="font-size: 14px; color: gray; text-align: center; padding: 20px 0;">보낸 기록이 없습니다.</p>`; return; }
+            container.innerHTML = history.map((h, index) => `<div class="file-card" style="margin-bottom:10px;"><div class="file-card-info" style="flex-direction:column; align-items:flex-start; gap:4px;"><span class="file-name" style="font-weight:bold; max-width:100%;">${h.filename}</span><span style="font-size:12px; color:gray;">받는 사람: ${h.targetName} | ${h.date}</span></div><button class="delete-btn ripple-target" onclick="removeSendHistoryItem(${index})"><span class="material-symbols-outlined">close</span></button></div>`).join('');
+        }
+
+        function removeSendHistoryItem(index) {
+            let history = JSON.parse(localStorage.getItem('quickShareSendHistory') || '[]');
+            history.splice(index, 1);
+            localStorage.setItem('quickShareSendHistory', JSON.stringify(history));
+            renderSendHistory();
+        }
+
+        function clearSendHistory() {
+            customConfirm("기록 삭제", "모든 보낸 기록을 삭제하시겠습니까?", () => { localStorage.removeItem('quickShareSendHistory'); renderSendHistory(); });
         }
 
         function switchTab(tab) {
@@ -277,16 +387,8 @@
             document.getElementById('tab-receive').classList.toggle('active', tab === 'receive');
         }
 
-        function handleFiles(files) {
-            for(let i=0; i<files.length; i++) selectedFiles.push(files[i]);
-            document.getElementById('file-input-hidden').value = ""; 
-            updateFileUI();
-        }
-
-        function removeFile(index) {
-            selectedFiles.splice(index, 1);
-            updateFileUI();
-        }
+        function handleFiles(files) { for(let i=0; i<files.length; i++) selectedFiles.push(files[i]); document.getElementById('file-input-hidden').value = ""; updateFileUI(); }
+        function removeFile(index) { selectedFiles.splice(index, 1); updateFileUI(); }
 
         function updateFileUI() {
             document.getElementById('fileCountText').innerText = selectedFiles.length === 0 ? "0개" : `${selectedFiles.length}개`;
@@ -295,37 +397,28 @@
             selectedFiles.forEach((file, index) => {
                 const isImg = file.type.startsWith('image/');
                 const src = isImg ? URL.createObjectURL(file) : null;
-                container.innerHTML += `
-                    <div class="file-card">
-                        <div class="file-card-info">
-                            ${isImg ? `<img src="${src}" class="file-preview-img">` : `<div class="file-preview-img"><span class="material-symbols-outlined">insert_drive_file</span></div>`}
-                            <span class="file-name">${file.name}</span>
-                        </div>
-                        <button class="delete-btn" onclick="removeFile(${index})"><span class="material-symbols-outlined">close</span></button>
-                    </div>`;
+                container.innerHTML += `<div class="file-card"><div class="file-card-info">${isImg ? `<img src="${src}" class="file-preview-img">` : `<div class="file-preview-img"><span class="material-symbols-outlined">insert_drive_file</span></div>`}<span class="file-name">${file.name}</span></div><button class="delete-btn ripple-target" onclick="removeFile(${index})"><span class="material-symbols-outlined">close</span></button></div>`;
             });
         }
 
-        // --- Network Logic ---
         async function pollServer() {
             try {
-                // 1. 생존 신고
-                await fetch(`${FLASK_SERVER_URL}/api/register`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ deviceId: myDeviceId, name: currentUser, type: 'Phone' })
-                });
-
-                // 2. 주변 기기 탐색
+                await fetch(`${FLASK_SERVER_URL}/api/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deviceId: myDeviceId, name: currentUser, type: 'Phone' }) });
                 const nearbyRes = await fetch(`${FLASK_SERVER_URL}/api/nearby?deviceId=${myDeviceId}`);
                 renderNearbyDevices(await nearbyRes.json());
 
-                // 3. 내게 온 파일 확인 (수신자)
-                if (!isReceivingMode) {
-                    const incomingRes = await fetch(`${FLASK_SERVER_URL}/api/check_files?deviceId=${myDeviceId}`);
-                    const incomingData = await incomingRes.json();
-                    if (incomingData.status === 'pending' && incomingData.files.length > 0) {
-                        showIncomingModal(incomingData.files);
-                    }
+                // 수신자 확인
+                const incomingRes = await fetch(`${FLASK_SERVER_URL}/api/check_files?deviceId=${myDeviceId}`);
+                const incomingData = await incomingRes.json();
+                
+                // --- 사용자 요청: 발신자가 취소하면 수신자 화면에서도 사라져야 함 ---
+                if (incomingData.status === 'pending' && incomingData.files.length > 0) {
+                    if (!isReceivingMode) showIncomingModal(incomingData.files);
+                } else if (isReceivingMode) {
+                    // 서버에 대기 파일이 없는데 수신 모달이 떠있다면 닫기
+                    document.getElementById('incomingModal').classList.remove('active');
+                    isReceivingMode = false;
+                    incomingBatch = null;
                 }
             } catch (e) { console.log("서버 통신 대기 중..."); }
         }
@@ -333,155 +426,113 @@
         function renderNearbyDevices(devices) {
             const container = document.getElementById('nearbyDevicesContainer');
             if (devices.length === 0) { container.innerHTML = `<p style="font-size: 13px; color: gray; width: 100%; text-align: center; padding: 20px 0;">주변에 기기가 없습니다.</p>`; return; }
-            
             container.innerHTML = '';
             devices.forEach(device => {
                 const div = document.createElement('div');
-                div.className = 'device-item';
+                div.className = 'device-item ripple-target';
                 div.onclick = () => {
+                    // --- 취소 로직 ---
+                    if (activeTargetDeviceId === device.id) {
+                        if (uploadController) uploadController.abort();
+                        // 서버에 취소 알림
+                        if (activeBatchId) fetch(`${FLASK_SERVER_URL}/api/cancel?batchId=${activeBatchId}&deviceId=${device.id}`);
+                        
+                        const iconWrap = document.getElementById(`device-icon-${device.id}`);
+                        if (iconWrap) { iconWrap.classList.remove('loading'); iconWrap.classList.add('canceled'); setTimeout(() => { iconWrap.classList.remove('canceled'); }, 2000); }
+                        
+                        removeFromSendHistory(activeBatchId); // 기록에서 삭제
+                        activeTargetDeviceId = null;
+                        activeBatchId = null;
+                        customAlert("전송 취소", "전송을 취소했습니다.");
+                        return;
+                    }
                     if (selectedFiles.length === 0) { customAlert("알림", "전송할 파일을 먼저 선택해주세요."); return; }
-                    customConfirm("파일 전송", `${device.name} 기기로 ${selectedFiles.length}개의 파일을 보내시겠습니까?`, () => sendFiles(device.id));
+                    customConfirm("파일 전송", `${device.name} 기기로 ${selectedFiles.length}개의 파일을 보내시겠습니까?`, () => sendFiles(device.id, device.name));
                 };
-                
-                // 받는 사람 프로필 아이콘 렌더링 (로딩 상태 유지)
                 const isLoading = (activeTargetDeviceId === device.id) ? 'loading' : '';
-                div.innerHTML = `
-                    <div class="device-icon-wrap ${isLoading}" id="device-icon-${device.id}">
-                        <div class="loading-ring"></div>
-                        <span class="material-symbols-outlined">smartphone</span>
-                    </div>
-                    <div class="device-name">${device.name}</div>
-                `;
+                div.innerHTML = `<div class="device-icon-wrap ${isLoading}" id="device-icon-${device.id}"><div class="ui-load-glx"><div class="gbx"><div class="bx"><i></i><i></i><i></i><i></i></div></div></div><span class="material-symbols-outlined">smartphone</span></div><div class="device-name">${device.name}</div>`;
                 container.appendChild(div);
             });
         }
 
-        // --- SENDER LOGIC ---
-        async function sendFiles(targetDeviceId) {
+        async function sendFiles(targetDeviceId, targetName) {
             const formData = new FormData();
             formData.append('senderId', myDeviceId);
             formData.append('receiverId', targetDeviceId);
             selectedFiles.forEach(file => formData.append('files', file));
+            uploadController = new AbortController();
 
             try {
-                const res = await fetch(`${FLASK_SERVER_URL}/api/upload`, { method: 'POST', body: formData });
+                activeTargetDeviceId = targetDeviceId;
+                const iconWrap = document.getElementById(`device-icon-${targetDeviceId}`);
+                if(iconWrap) iconWrap.classList.add('loading');
+
+                const res = await fetch(`${FLASK_SERVER_URL}/api/upload`, { method: 'POST', body: formData, signal: uploadController.signal });
                 const data = await res.json();
                 if(data.status === 'ok') {
-                    // 받는 사람(Target) 아이콘에 로딩 애니메이션 활성화
                     activeBatchId = data.batchId; 
-                    activeTargetDeviceId = targetDeviceId;
-                    const iconWrap = document.getElementById(`device-icon-${targetDeviceId}`);
-                    if(iconWrap) iconWrap.classList.add('loading');
-                    
+                    selectedFiles.forEach(file => saveSendHistory(file.name, targetName, data.batchId));
                     selectedFiles = []; updateFileUI();
                 }
-            } catch (e) { customAlert("오류", "서버 전송에 실패했습니다."); }
+            } catch (e) { if (e.name !== 'AbortError') { customAlert("오류", "서버 전송에 실패했습니다."); clearTargetLoading(); } }
         }
 
-        function clearTargetLoading() {
-            if(activeTargetDeviceId) {
-                const iconWrap = document.getElementById(`device-icon-${activeTargetDeviceId}`);
-                if(iconWrap) iconWrap.classList.remove('loading');
-            }
-            activeTargetDeviceId = null;
-            activeBatchId = null;
-        }
+        function clearTargetLoading() { if(activeTargetDeviceId) { const iconWrap = document.getElementById(`device-icon-${activeTargetDeviceId}`); if(iconWrap) iconWrap.classList.remove('loading'); } activeTargetDeviceId = null; activeBatchId = null; }
 
         async function checkSenderStatus() {
             if(!activeBatchId) return;
             try {
                 const res = await fetch(`${FLASK_SERVER_URL}/api/status?batchId=${activeBatchId}`);
                 const data = await res.json();
-                
-                if(data.status === 'completed') {
-                    clearTargetLoading();
-                    customAlert("전송 완료", "상대방이 파일을 다운로드했습니다.");
-                } else if (data.status === 'rejected') {
-                    clearTargetLoading();
-                    customAlert("전송 거절됨", "상대방이 파일 수신을 거부했습니다.");
+                if(data.status === 'completed') { clearTargetLoading(); customAlert("전송 완료", "상대방이 파일을 다운로드했습니다."); } 
+                else if (data.status === 'rejected') { 
+                    removeFromSendHistory(activeBatchId); // 기록에서 삭제
+                    clearTargetLoading(); 
+                    customAlert("전송 거절됨", "상대방이 파일 수신을 거부했습니다."); 
                 }
             } catch(e) {}
         }
 
-        // --- RECEIVER LOGIC ---
         function showIncomingModal(files) {
             isReceivingMode = true;
             incomingBatch = files;
             const senderName = files[0].sender_name;
             const fileCount = files.length;
             const displayTitle = fileCount > 1 ? `${files[0].filename} 외 ${fileCount-1}개` : files[0].filename;
-            
             document.getElementById('incomingTitle').innerText = `${senderName}님의 공유 요청`;
             document.getElementById('incomingDesc').innerText = `[${displayTitle}] 파일을 받으시겠습니까?`;
-            
             document.getElementById('incomingModal').classList.add('active');
         }
 
         async function handleIncoming(isAccept) {
             document.getElementById('incomingModal').classList.remove('active');
-            
             if (!isAccept) {
-                // 거부 시
                 const batchId = incomingBatch[0].batch_id;
                 await fetch(`${FLASK_SERVER_URL}/api/discard?deviceId=${myDeviceId}&batchId=${batchId}`);
                 isReceivingMode = false;
                 incomingBatch = null;
-            } else {
-                // 허용 시 -> 프로그레스 바 띄우고 다운로드
-                downloadWithProgress(incomingBatch[0]); 
-            }
+            } else { downloadWithProgress(incomingBatch); }
         }
 
-        function downloadWithProgress(fileData) {
-            document.getElementById('progressFilename').innerText = fileData.filename;
-            document.getElementById('progressBar').style.width = '0%';
-            document.getElementById('progressPercent').innerText = '0%';
+        async function downloadWithProgress(files) {
             document.getElementById('progressModal').classList.add('active');
-
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', `${FLASK_SERVER_URL}/api/download?deviceId=${myDeviceId}&fileId=${fileData.id}`, true);
-            xhr.responseType = 'blob';
-
-            xhr.onprogress = function(e) {
-                if (e.lengthComputable) {
-                    const percentComplete = Math.floor((e.loaded / e.total) * 100);
-                    document.getElementById('progressBar').style.width = percentComplete + '%';
-                    document.getElementById('progressPercent').innerText = percentComplete + '%';
-                } else {
-                    document.getElementById('progressPercent').innerText = '다운로드 중...';
-                }
-            };
-
-            xhr.onload = function() {
-                if (this.status === 200) {
-                    document.getElementById('progressBar').style.width = '100%';
-                    document.getElementById('progressPercent').innerText = '100%';
-                    
-                    const blob = this.response;
-                    const a = document.createElement('a');
-                    a.href = window.URL.createObjectURL(blob);
-                    a.download = fileData.filename;
-                    a.click();
-                    
-                    setTimeout(() => {
-                        document.getElementById('progressModal').classList.remove('active');
-                        isReceivingMode = false;
-                        incomingBatch = null;
-                    }, 500); 
-                } else {
-                    document.getElementById('progressModal').classList.remove('active');
-                    customAlert("오류", "다운로드 중 문제가 발생했습니다.");
-                    isReceivingMode = false;
-                }
-            };
-
-            xhr.onerror = function() {
-                document.getElementById('progressModal').classList.remove('active');
-                customAlert("오류", "네트워크 에러가 발생했습니다.");
-                isReceivingMode = false;
+            for (let i = 0; i < files.length; i++) {
+                const fileData = files[i];
+                const prefix = files.length > 1 ? `(${i + 1}/${files.length}) ` : '';
+                document.getElementById('progressFilename').innerText = prefix + fileData.filename;
+                document.getElementById('progressBar').style.width = '0%';
+                document.getElementById('progressPercent').innerText = '0%';
+                await new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', `${FLASK_SERVER_URL}/api/download?deviceId=${myDeviceId}&fileId=${fileData.id}`, true);
+                    xhr.responseType = 'blob';
+                    xhr.onprogress = function(e) { if (e.lengthComputable) { const percentComplete = Math.floor((e.loaded / e.total) * 100); document.getElementById('progressBar').style.width = percentComplete + '%'; document.getElementById('progressPercent').innerText = percentComplete + '%'; } };
+                    xhr.onload = function() { if (this.status === 200) { const blob = this.response; const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = fileData.filename; a.click(); saveReceiveHistory(fileData.filename, fileData.sender_name); setTimeout(() => { resolve(); }, 300); } else { reject("다운로드 오류"); } };
+                    xhr.onerror = () => reject("에러 발생");
+                    xhr.send();
+                }).catch(err => customAlert("오류", err));
             }
-
-            xhr.send();
+            setTimeout(() => { document.getElementById('progressModal').classList.remove('active'); isReceivingMode = false; incomingBatch = null; }, 500); 
         }
     </script>
 </body>
