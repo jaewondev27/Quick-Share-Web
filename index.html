@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Quick Share</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <style>
+        :root {
+            --bg-color: #f2f2f2;
+            --card-bg: #ffffff;
+            --text-main: #1d1d1d;
+            --text-sub: #5f6368;
+            --primary-color: #d1e7dd; 
+            --btn-dark: #585e59;
+            --border-radius: 24px;
+        }
+
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow-x: hidden; }
+
+        /* --- Header & Tabs --- */
+        header { padding: 20px 20px 10px; }
+        .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .header-left, .header-right { display: flex; align-items: center; gap: 16px; }
+        .header-title { font-weight: 500; font-size: 22px; }
+        .icon-btn { background: #e8e8e8; border: none; cursor: pointer; color: var(--text-sub); display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 40px; height: 40px; }
+        .header-right .icon-btn { background-color: transparent; }
+
+        .tabs { display: flex; gap: 10px; background: #e0e0e0; padding: 5px; border-radius: 20px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 15px; font-size: 15px; font-weight: 500; color: var(--text-sub); cursor: pointer; transition: 0.3s; }
+        .tab-btn.active { background: white; color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        /* --- Main Content --- */
+        main { flex: 1; padding: 0 20px 20px; overflow-y: auto; }
+        .section-title { font-size: 14px; font-weight: 600; color: var(--text-sub); margin: 20px 0 10px 10px; }
+        
+        .card { background-color: var(--card-bg); border-radius: var(--border-radius); padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .profile-wrap { display: flex; align-items: center; gap: 15px; }
+        .profile-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+        .profile-name { font-size: 18px; font-weight: 500; }
+
+        /* --- File Cards --- */
+        .files-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+        .files-info-wrap { display: flex; align-items: center; gap: 15px; }
+        .check-icon { background-color: #e8e8e8; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #4a4a4a; }
+        .files-text { font-size: 16px; font-weight: 500; }
+        .files-subtext { font-size: 14px; color: var(--text-sub); margin-top: 4px; }
+        
+        .file-preview-container { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .file-card { display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 10px 15px; border-radius: 16px; border: 1px solid #eee; }
+        .file-card-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
+        .file-preview-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background: #e0e0e0; display: flex; align-items: center; justify-content: center; color: gray; }
+        .file-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+        .delete-btn { background: none; border: none; color: #ff5252; cursor: pointer; display: flex; align-items: center; padding: 5px; }
+
+        /* --- Devices --- */
+        .devices-scroll { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+        .devices-scroll::-webkit-scrollbar { display: none; }
+        .device-item { display: flex; flex-direction: column; align-items: center; min-width: 80px; cursor: pointer; }
+        .device-icon-wrap { width: 65px; height: 65px; border-radius: 50%; background-color: var(--primary-color); display: flex; align-items: center; justify-content: center; margin-bottom: 8px; transition: transform 0.1s; }
+        .device-item:active .device-icon-wrap { transform: scale(0.95); }
+        .device-name { font-size: 14px; font-weight: 500; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .device-type { font-size: 12px; color: var(--text-sub); }
+
+        .nearby-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .qr-btn { background-color: var(--btn-dark); color: white; border: none; padding: 10px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer;}
+
+        /* --- Incoming File Card --- */
+        .incoming-card { display: flex; flex-direction: column; gap: 10px; background: #fff; padding: 15px; border-radius: 16px; border: 1px solid #d1e7dd; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .incoming-sender { font-size: 12px; color: var(--text-sub); }
+        .incoming-actions { display: flex; gap: 10px; margin-top: 5px; }
+        .btn-accept { flex: 1; background: var(--btn-dark); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .btn-decline { flex: 1; background: #e0e0e0; color: var(--text-main); border: none; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+
+        /* --- Modals --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 9999; visibility: hidden; opacity: 0; transition: all 0.3s ease; }
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+        .modal-content { background: white; padding: 30px; border-radius: 24px; width: 85%; max-width: 400px; text-align: center; }
+        .modal-content h2 { margin-bottom: 20px; font-size: 20px; }
+        .modal-content input { width: 100%; padding: 15px; border: 1px solid #ccc; border-radius: 12px; font-size: 16px; margin-bottom: 20px; outline: none; }
+        .modal-content button { background-color: var(--btn-dark); color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+
+        #file-input-hidden { display: none; }
+        #receive-section { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="modal-overlay" id="nameModal">
+        <div class="modal-content">
+            <h2>기기 이름 설정</h2>
+            <p style="font-size: 14px; color: gray; margin-bottom: 15px;">주변 기기에 표시될 이름을 입력해주세요.</p>
+            <input type="text" id="userNameInput" placeholder="예: 내 스마트폰" autocomplete="off">
+            <button onclick="saveName()">시작하기</button>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-top">
+            <div class="header-left">
+                <button class="icon-btn"><span class="material-symbols-outlined">arrow_back</span></button>
+                <span class="header-title">Quick Share</span>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn"><span class="material-symbols-outlined">help</span></button>
+                <button class="icon-btn"><span class="material-symbols-outlined">more_vert</span></button>
+            </div>
+        </div>
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-send" onclick="switchTab('send')">보내기</button>
+            <button class="tab-btn" id="tab-receive" onclick="switchTab('receive')">받기</button>
+        </div>
+    </header>
+
+    <main id="main-content" style="opacity: 0; transition: opacity 0.5s;">
+        
+        <div id="send-section">
+            <div class="section-title">You'll appear as</div>
+            <div class="card profile-wrap">
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" class="profile-img" id="profileImage">
+                <div class="profile-info">
+                    <span class="profile-name" id="displayUserName">Loading...</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="files-header" onclick="document.getElementById('file-input-hidden').click()">
+                    <div class="files-info-wrap">
+                        <div class="check-icon"><span class="material-symbols-outlined">add</span></div>
+                        <div>
+                            <div class="files-text">Select files</div>
+                            <div class="files-subtext" id="fileCountText">0 items</div>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined" style="color: var(--text-sub)">expand_more</span>
+                </div>
+                <input type="file" id="file-input-hidden" multiple onchange="handleFiles(this.files)">
+                
+                <div id="filePreviewContainer" class="file-preview-container"></div>
+            </div>
+
+            <div class="section-title">Send to nearby devices</div>
+            <div class="card">
+                <div class="nearby-header">
+                    <div></div>
+                    <button class="qr-btn"><span class="material-symbols-outlined" style="font-size: 18px;">qr_code_scanner</span> Use QR code</button>
+                </div>
+                <div class="devices-scroll" id="nearbyDevicesContainer">
+                    <p style="font-size: 13px; color: gray; width: 100%; text-align: center; padding: 20px 0;">주변 기기를 찾는 중...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="receive-section">
+            <div class="section-title">Incoming Files</div>
+            <div id="incomingFilesContainer">
+                <p style="font-size: 14px; color: gray; text-align: center; padding: 40px 0;">현재 수신 대기 중인 파일이 없습니다.<br><br>주변 기기에서 파일을 보내면<br>이곳에 표시됩니다.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const FLASK_SERVER_URL = "https://jaewondev5.pythonanywhere.com";
+        let currentUser = localStorage.getItem('quickShareUserName');
+        let selectedFiles = []; // 선택된 파일 배열 보관
+        let myDeviceId = localStorage.getItem('deviceId');
+
+        if (!myDeviceId) {
+            myDeviceId = 'device_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('deviceId', myDeviceId);
+        }
+
+        window.onload = () => {
+            if (!currentUser) {
+                document.getElementById('nameModal').classList.add('active');
+                document.getElementById('userNameInput').focus();
+            } else {
+                initializeApp();
+            }
+        };
+
+        function saveName() {
+            const inputName = document.getElementById('userNameInput').value.trim();
+            if (inputName.length < 1) { alert("이름을 입력해주세요."); return; }
+            localStorage.setItem('quickShareUserName', inputName);
+            currentUser = inputName;
+            document.getElementById('nameModal').classList.remove('active');
+            initializeApp();
+        }
+
+        function initializeApp() {
+            document.getElementById('displayUserName').innerText = currentUser;
+            document.getElementById('profileImage').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser)}&background=random`;
+            document.getElementById('main-content').style.opacity = '1';
+            
+            // 통신 시작
+            pollServer();
+            setInterval(pollServer, 3000); // 3초마다 주변 기기 및 수신 파일 폴링
+        }
+
+        // --- 탭 전환 로직 ---
+        function switchTab(tab) {
+            document.getElementById('send-section').style.display = (tab === 'send') ? 'block' : 'none';
+            document.getElementById('receive-section').style.display = (tab === 'receive') ? 'block' : 'none';
+            
+            document.getElementById('tab-send').classList.toggle('active', tab === 'send');
+            document.getElementById('tab-receive').classList.toggle('active', tab === 'receive');
+        }
+
+        // --- 파일 선택 및 개별 삭제 UI 로직 ---
+        function handleFiles(files) {
+            for(let i=0; i<files.length; i++) {
+                selectedFiles.push(files[i]);
+            }
+            document.getElementById('file-input-hidden').value = ""; // input 초기화
+            updateFileUI();
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileUI();
+        }
+
+        function updateFileUI() {
+            const countText = document.getElementById('fileCountText');
+            countText.innerText = selectedFiles.length === 0 ? "0 items" : `${selectedFiles.length} items`;
+
+            const container = document.getElementById('filePreviewContainer');
+            container.innerHTML = "";
+
+            selectedFiles.forEach((file, index) => {
+                const isImage = file.type.startsWith('image/');
+                const previewSrc = isImage ? URL.createObjectURL(file) : null;
+                
+                const card = document.createElement('div');
+                card.className = 'file-card';
+                card.innerHTML = `
+                    <div class="file-card-info">
+                        ${isImage 
+                            ? `<img src="${previewSrc}" class="file-preview-img" alt="preview">` 
+                            : `<div class="file-preview-img"><span class="material-symbols-outlined">insert_drive_file</span></div>`
+                        }
+                        <span class="file-name">${file.name}</span>
+                    </div>
+                    <button class="delete-btn" onclick="removeFile(${index})">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- 백엔드 통신 로직 ---
+        async function pollServer() {
+            try {
+                // 1. 생존 신고 및 등록
+                await fetch(`${FLASK_SERVER_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deviceId: myDeviceId, name: currentUser, type: 'Phone' })
+                });
+
+                // 2. 주변 기기 가져오기
+                const nearbyRes = await fetch(`${FLASK_SERVER_URL}/api/nearby?deviceId=${myDeviceId}`);
+                const devices = await nearbyRes.json();
+                renderNearbyDevices(devices);
+
+                // 3. 내게 온 파일 확인하기
+                const incomingRes = await fetch(`${FLASK_SERVER_URL}/api/check_files?deviceId=${myDeviceId}`);
+                const incomingData = await incomingRes.json();
+                renderIncomingFiles(incomingData);
+
+            } catch (error) {
+                console.error("서버 폴링 에러:", error);
+            }
+        }
+
+        function renderNearbyDevices(devices) {
+            const container = document.getElementById('nearbyDevicesContainer');
+            
+            if (devices.length === 0) {
+                container.innerHTML = `<p style="font-size: 13px; color: gray; width: 100%; text-align: center; padding: 20px 0;">주변에 기기가 없습니다.</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            devices.forEach(device => {
+                const deviceDiv = document.createElement('div');
+                deviceDiv.className = 'device-item';
+                deviceDiv.onclick = () => sendFilesToDevice(device.id, device.name);
+                
+                deviceDiv.innerHTML = `
+                    <div class="device-icon-wrap"><span class="material-symbols-outlined">smartphone</span></div>
+                    <div class="device-name">${device.name}</div>
+                    <div class="device-type">${device.type}</div>
+                `;
+                container.appendChild(deviceDiv);
+            });
+        }
+
+        async function sendFilesToDevice(targetDeviceId, targetName) {
+            if (selectedFiles.length === 0) {
+                alert("전송할 파일을 먼저 선택해주세요.");
+                return;
+            }
+            
+            const confirmSend = confirm(`${targetName} 기기로 ${selectedFiles.length}개의 파일을 전송하시겠습니까?`);
+            if (!confirmSend) return;
+
+            const formData = new FormData();
+            formData.append('senderId', myDeviceId);
+            formData.append('receiverId', targetDeviceId);
+            selectedFiles.forEach(file => { formData.append('files', file); });
+
+            try {
+                const res = await fetch(`${FLASK_SERVER_URL}/api/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if(res.ok) { 
+                    alert('전송이 완료되었습니다!'); 
+                    selectedFiles = []; // 전송 후 목록 초기화
+                    updateFileUI();
+                } else {
+                    alert('전송 실패');
+                }
+            } catch (e) { alert('서버 오류로 전송에 실패했습니다.'); }
+        }
+
+        function renderIncomingFiles(data) {
+            const container = document.getElementById('incomingFilesContainer');
+            
+            if (data.status === 'empty' || !data.files || data.files.length === 0) {
+                container.innerHTML = `<p style="font-size: 14px; color: gray; text-align: center; padding: 40px 0;">현재 수신 대기 중인 파일이 없습니다.<br><br>주변 기기에서 파일을 보내면<br>이곳에 표시됩니다.</p>`;
+                
+                // 받기 탭에 배지(알림) 숨기기 (옵션)
+                document.getElementById('tab-receive').innerHTML = `받기`;
+                return;
+            }
+
+            // 파일이 있을 경우 탭 이름에 알림 표시
+            document.getElementById('tab-receive').innerHTML = `받기 <span style="color:red; font-size:12px;">●</span>`;
+            
+            container.innerHTML = '';
+            data.files.forEach(file => {
+                const card = document.createElement('div');
+                card.className = 'incoming-card';
+                card.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span class="material-symbols-outlined" style="color:var(--primary-color); font-size:32px;">download</span>
+                        <div style="overflow:hidden;">
+                            <div class="file-name" style="font-weight:bold;">${file.filename}</div>
+                            <div class="incoming-sender">보낸 사람: ${file.sender_name}</div>
+                        </div>
+                    </div>
+                    <div class="incoming-actions">
+                        <button class="btn-decline" onclick="discardFile('${file.id}')">거절</button>
+                        <button class="btn-accept" onclick="downloadFile('${file.id}')">다운로드</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function downloadFile(fileId) {
+            // 브라우저 다운로드 실행
+            window.location.href = `${FLASK_SERVER_URL}/api/download?deviceId=${myDeviceId}&fileId=${fileId}`;
+            // 다운로드 직후 UI 바로 갱신 (서버에서도 지워짐)
+            setTimeout(pollServer, 1000); 
+        }
+
+        async function discardFile(fileId) {
+            try {
+                await fetch(`${FLASK_SERVER_URL}/api/discard?deviceId=${myDeviceId}&fileId=${fileId}`);
+                pollServer(); // 즉시 리스트 갱신
+            } catch(e) { console.error("파일 거절 실패", e); }
+        }
+    </script>
+</body>
+</html>
