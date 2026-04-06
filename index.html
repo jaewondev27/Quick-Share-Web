@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Quick Share</title>
+    <title>SharePass</title>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
     <style>
         :root {
@@ -51,9 +51,12 @@
         .icon-btn { background: #f5f5f5; border: none; cursor: pointer; color: var(--text-sub); display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 40px; height: 40px; transition: transform 0.2s, background-color 0.2s; }
         .icon-btn:active { transform: scale(0.9); }
         .header-right .icon-btn { background-color: transparent; }
-        .tabs { display: flex; gap: 10px; background: #f0f0f0; padding: 5px; border-radius: 20px; }
-        .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 15px; font-size: 15px; font-weight: 500; color: var(--text-sub); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
-        .tab-btn.active { background: white; color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.02); }
+        
+        /* --- 사용자 요청: 탭 전환 버튼 안삐져나가게 수정 --- */
+        .tabs { display: flex; gap: 10px; background: #f0f0f0; padding: 5px; border-radius: 20px; overflow: hidden; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 15px; font-size: 15px; font-weight: 500; color: var(--text-sub); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; z-index: 1; }
+        .tab-btn.active { background: white; color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        /* -------------------------------------------------- */
 
         main { 
             flex: 1; padding: 0 20px 20px; overflow-y: auto; 
@@ -89,9 +92,14 @@
             position: relative; width: 65px; height: 65px; border-radius: 50%; 
             background-color: var(--primary-color); display: flex; align-items: center; 
             justify-content: center; margin-bottom: 8px; transition: transform 0.2s;
+            overflow: hidden; /* 블러 영역 제한 */
         }
         .device-item:active .device-icon-wrap { transform: scale(0.95); }
         .device-name { font-size: 14px; font-weight: 500; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; pointer-events: none; }
+
+        /* --- 사용자 요청: 프로필 블러 처리 --- */
+        .device-icon-wrap.loading .material-symbols-outlined { filter: blur(4px); transition: filter 0.3s; }
+        /* ---------------------------------- */
 
         .device-icon-wrap.canceled { background-color: #ff9800 !important; transition: background-color 0.3s; }
         .device-icon-wrap.canceled .ui-load-glx,
@@ -108,6 +116,10 @@
             align-items: center; justify-content: center; z-index: 10;
         }
         .device-icon-wrap.loading .ui-load-glx { display: flex; }
+        /* 다운로드 모달 내부 로딩 표시를 위함 */
+        .progress-loading-wrap { display: flex; justify-content: center; margin-bottom: 20px; height: 40px; position: relative; }
+        .progress-loading-wrap .ui-load-glx { display: flex; position: relative; top: unset; left: unset; transform: unset; }
+
         .ui-load-glx > .gbx { width: 20px; height: 20px; position: relative; transform: scale(1.0); }
         .ui-load-glx > .gbx .bx { position: absolute; width: 100%; height: 100%; animation: rotateFull 1.0s linear infinite; }
         .ui-load-glx > .gbx .bx i { position: absolute; width: 100%; height: 100%; animation: moveDistance 0.5s alternate infinite ease-in-out; }
@@ -187,6 +199,13 @@
 
     <div class="modal-overlay" id="progressModal">
         <div class="modal-content">
+            <div class="progress-loading-wrap">
+                <div class="ui-load-glx">
+                    <div class="gbx">
+                        <div class="bx"><i></i><i></i><i></i><i></i></div>
+                    </div>
+                </div>
+            </div>
             <div class="modal-title">파일 다운로드 중...</div>
             <div class="modal-desc" id="progressFilename" style="margin-bottom: 0;">파일명</div>
             <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
@@ -198,7 +217,7 @@
         <div class="header-top">
             <div class="header-left">
                 <button class="icon-btn ripple-target" onclick="closeApp()"><span class="material-symbols-outlined">arrow_back</span></button>
-                <span class="header-title">Quick Share</span>
+                <span class="header-title">SharePass</span>
             </div>
             <div class="header-right"><button class="icon-btn ripple-target"><span class="material-symbols-outlined">more_vert</span></button></div>
         </div>
@@ -354,7 +373,6 @@
             renderSendHistory();
         }
 
-        // --- 사용자 요청: 취소/거절 시 기록에서 삭제 로직 ---
         function removeFromSendHistory(batchId) {
             let history = JSON.parse(localStorage.getItem('quickShareSendHistory') || '[]');
             let filtered = history.filter(h => h.batchId !== batchId);
@@ -406,20 +424,10 @@
                 await fetch(`${FLASK_SERVER_URL}/api/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deviceId: myDeviceId, name: currentUser, type: 'Phone' }) });
                 const nearbyRes = await fetch(`${FLASK_SERVER_URL}/api/nearby?deviceId=${myDeviceId}`);
                 renderNearbyDevices(await nearbyRes.json());
-
-                // 수신자 확인
                 const incomingRes = await fetch(`${FLASK_SERVER_URL}/api/check_files?deviceId=${myDeviceId}`);
                 const incomingData = await incomingRes.json();
-                
-                // --- 사용자 요청: 발신자가 취소하면 수신자 화면에서도 사라져야 함 ---
-                if (incomingData.status === 'pending' && incomingData.files.length > 0) {
-                    if (!isReceivingMode) showIncomingModal(incomingData.files);
-                } else if (isReceivingMode) {
-                    // 서버에 대기 파일이 없는데 수신 모달이 떠있다면 닫기
-                    document.getElementById('incomingModal').classList.remove('active');
-                    isReceivingMode = false;
-                    incomingBatch = null;
-                }
+                if (incomingData.status === 'pending' && incomingData.files.length > 0) { if (!isReceivingMode) showIncomingModal(incomingData.files); } 
+                else if (isReceivingMode) { document.getElementById('incomingModal').classList.remove('active'); isReceivingMode = false; incomingBatch = null; }
             } catch (e) { console.log("서버 통신 대기 중..."); }
         }
 
@@ -431,18 +439,13 @@
                 const div = document.createElement('div');
                 div.className = 'device-item ripple-target';
                 div.onclick = () => {
-                    // --- 취소 로직 ---
                     if (activeTargetDeviceId === device.id) {
                         if (uploadController) uploadController.abort();
-                        // 서버에 취소 알림
                         if (activeBatchId) fetch(`${FLASK_SERVER_URL}/api/cancel?batchId=${activeBatchId}&deviceId=${device.id}`);
-                        
                         const iconWrap = document.getElementById(`device-icon-${device.id}`);
                         if (iconWrap) { iconWrap.classList.remove('loading'); iconWrap.classList.add('canceled'); setTimeout(() => { iconWrap.classList.remove('canceled'); }, 2000); }
-                        
-                        removeFromSendHistory(activeBatchId); // 기록에서 삭제
-                        activeTargetDeviceId = null;
-                        activeBatchId = null;
+                        removeFromSendHistory(activeBatchId);
+                        activeTargetDeviceId = null; activeBatchId = null;
                         customAlert("전송 취소", "전송을 취소했습니다.");
                         return;
                     }
@@ -461,19 +464,13 @@
             formData.append('receiverId', targetDeviceId);
             selectedFiles.forEach(file => formData.append('files', file));
             uploadController = new AbortController();
-
             try {
                 activeTargetDeviceId = targetDeviceId;
                 const iconWrap = document.getElementById(`device-icon-${targetDeviceId}`);
                 if(iconWrap) iconWrap.classList.add('loading');
-
                 const res = await fetch(`${FLASK_SERVER_URL}/api/upload`, { method: 'POST', body: formData, signal: uploadController.signal });
                 const data = await res.json();
-                if(data.status === 'ok') {
-                    activeBatchId = data.batchId; 
-                    selectedFiles.forEach(file => saveSendHistory(file.name, targetName, data.batchId));
-                    selectedFiles = []; updateFileUI();
-                }
+                if(data.status === 'ok') { activeBatchId = data.batchId; selectedFiles.forEach(file => saveSendHistory(file.name, targetName, data.batchId)); selectedFiles = []; updateFileUI(); }
             } catch (e) { if (e.name !== 'AbortError') { customAlert("오류", "서버 전송에 실패했습니다."); clearTargetLoading(); } }
         }
 
@@ -485,11 +482,7 @@
                 const res = await fetch(`${FLASK_SERVER_URL}/api/status?batchId=${activeBatchId}`);
                 const data = await res.json();
                 if(data.status === 'completed') { clearTargetLoading(); customAlert("전송 완료", "상대방이 파일을 다운로드했습니다."); } 
-                else if (data.status === 'rejected') { 
-                    removeFromSendHistory(activeBatchId); // 기록에서 삭제
-                    clearTargetLoading(); 
-                    customAlert("전송 거절됨", "상대방이 파일 수신을 거부했습니다."); 
-                }
+                else if (data.status === 'rejected') { removeFromSendHistory(activeBatchId); clearTargetLoading(); customAlert("전송 거절됨", "상대방이 파일 수신을 거부했습니다."); }
             } catch(e) {}
         }
 
@@ -506,12 +499,8 @@
 
         async function handleIncoming(isAccept) {
             document.getElementById('incomingModal').classList.remove('active');
-            if (!isAccept) {
-                const batchId = incomingBatch[0].batch_id;
-                await fetch(`${FLASK_SERVER_URL}/api/discard?deviceId=${myDeviceId}&batchId=${batchId}`);
-                isReceivingMode = false;
-                incomingBatch = null;
-            } else { downloadWithProgress(incomingBatch); }
+            if (!isAccept) { const batchId = incomingBatch[0].batch_id; await fetch(`${FLASK_SERVER_URL}/api/discard?deviceId=${myDeviceId}&batchId=${batchId}`); isReceivingMode = false; incomingBatch = null; } 
+            else { downloadWithProgress(incomingBatch); }
         }
 
         async function downloadWithProgress(files) {
