@@ -12,6 +12,7 @@
             --text-main: #1d1d1d;
             --text-sub: #5f6368;
             --primary-color: #d1e7dd; 
+            --accent-color: #4caf50;
             --btn-dark: #585e59;
             --border-radius: 24px;
         }
@@ -19,67 +20,73 @@
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow-x: hidden; }
 
-        /* --- Header & Tabs --- */
+        /* Header & Tabs */
         header { padding: 20px 20px 10px; }
         .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .header-left, .header-right { display: flex; align-items: center; gap: 16px; }
         .header-title { font-weight: 500; font-size: 22px; }
         .icon-btn { background: #e8e8e8; border: none; cursor: pointer; color: var(--text-sub); display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 40px; height: 40px; }
         .header-right .icon-btn { background-color: transparent; }
-
         .tabs { display: flex; gap: 10px; background: #e0e0e0; padding: 5px; border-radius: 20px; }
         .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 15px; font-size: 15px; font-weight: 500; color: var(--text-sub); cursor: pointer; transition: 0.3s; }
         .tab-btn.active { background: white; color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        /* --- Main Content --- */
+        /* Main Content */
         main { flex: 1; padding: 0 20px 20px; overflow-y: auto; }
         .section-title { font-size: 14px; font-weight: 600; color: var(--text-sub); margin: 20px 0 10px 10px; }
-        
         .card { background-color: var(--card-bg); border-radius: var(--border-radius); padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        
+        /* Profile & Loading Ring */
         .profile-wrap { display: flex; align-items: center; gap: 15px; }
-        .profile-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+        .profile-img-container { position: relative; width: 50px; height: 50px; border-radius: 50%; }
+        .profile-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; position: relative; z-index: 2; }
+        .loading-ring {
+            position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border: 3px solid #e8e8e8; border-top-color: var(--accent-color);
+            border-radius: 50%; z-index: 1; animation: spin 1s linear infinite; display: none;
+        }
+        .profile-img-container.loading .loading-ring { display: block; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
         .profile-name { font-size: 18px; font-weight: 500; }
 
-        /* --- File Cards --- */
+        /* File Cards */
         .files-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
         .files-info-wrap { display: flex; align-items: center; gap: 15px; }
         .check-icon { background-color: #e8e8e8; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #4a4a4a; }
         .files-text { font-size: 16px; font-weight: 500; }
         .files-subtext { font-size: 14px; color: var(--text-sub); margin-top: 4px; }
-        
         .file-preview-container { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         .file-card { display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 10px 15px; border-radius: 16px; border: 1px solid #eee; }
         .file-card-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         .file-preview-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background: #e0e0e0; display: flex; align-items: center; justify-content: center; color: gray; }
         .file-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
-        .delete-btn { background: none; border: none; color: #ff5252; cursor: pointer; display: flex; align-items: center; padding: 5px; }
+        .delete-btn { background: none; border: none; color: #ff5252; cursor: pointer; padding: 5px; }
 
-        /* --- Devices --- */
+        /* Devices */
         .devices-scroll { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
         .devices-scroll::-webkit-scrollbar { display: none; }
         .device-item { display: flex; flex-direction: column; align-items: center; min-width: 80px; cursor: pointer; }
-        .device-icon-wrap { width: 65px; height: 65px; border-radius: 50%; background-color: var(--primary-color); display: flex; align-items: center; justify-content: center; margin-bottom: 8px; transition: transform 0.1s; }
+        .device-icon-wrap { width: 65px; height: 65px; border-radius: 50%; background-color: var(--primary-color); display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
         .device-item:active .device-icon-wrap { transform: scale(0.95); }
         .device-name { font-size: 14px; font-weight: 500; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
         .device-type { font-size: 12px; color: var(--text-sub); }
 
-        .nearby-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .qr-btn { background-color: var(--btn-dark); color: white; border: none; padding: 10px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer;}
-
-        /* --- Incoming File Card --- */
-        .incoming-card { display: flex; flex-direction: column; gap: 10px; background: #fff; padding: 15px; border-radius: 16px; border: 1px solid #d1e7dd; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .incoming-sender { font-size: 12px; color: var(--text-sub); }
-        .incoming-actions { display: flex; gap: 10px; margin-top: 5px; }
-        .btn-accept { flex: 1; background: var(--btn-dark); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .btn-decline { flex: 1; background: #e0e0e0; color: var(--text-main); border: none; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-
-        /* --- Modals --- */
+        /* Modals Base */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 9999; visibility: hidden; opacity: 0; transition: all 0.3s ease; }
         .modal-overlay.active { visibility: visible; opacity: 1; }
-        .modal-content { background: white; padding: 30px; border-radius: 24px; width: 85%; max-width: 400px; text-align: center; }
-        .modal-content h2 { margin-bottom: 20px; font-size: 20px; }
-        .modal-content input { width: 100%; padding: 15px; border: 1px solid #ccc; border-radius: 12px; font-size: 16px; margin-bottom: 20px; outline: none; }
-        .modal-content button { background-color: var(--btn-dark); color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .modal-content { background: white; padding: 25px; border-radius: 24px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-title { margin-bottom: 15px; font-size: 18px; font-weight: bold; }
+        .modal-desc { font-size: 14px; color: var(--text-sub); margin-bottom: 20px; line-height: 1.4; }
+        .modal-actions { display: flex; gap: 10px; width: 100%; }
+        .modal-btn { flex: 1; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; }
+        .btn-primary { background-color: var(--btn-dark); color: white; }
+        .btn-secondary { background-color: #e0e0e0; color: var(--text-main); }
+        
+        /* Input & Progress Modal overrides */
+        .modal-input { width: 100%; padding: 15px; border: 1px solid #ccc; border-radius: 12px; font-size: 16px; margin-bottom: 20px; outline: none; }
+        .progress-container { width: 100%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin: 20px 0 10px 0; }
+        .progress-bar { width: 0%; height: 100%; background: var(--accent-color); transition: width 0.2s linear; }
+        .progress-text { font-size: 16px; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; }
 
         #file-input-hidden { display: none; }
         #receive-section { display: none; }
@@ -89,10 +96,50 @@
 
     <div class="modal-overlay" id="nameModal">
         <div class="modal-content">
-            <h2>기기 이름 설정</h2>
-            <p style="font-size: 14px; color: gray; margin-bottom: 15px;">주변 기기에 표시될 이름을 입력해주세요.</p>
-            <input type="text" id="userNameInput" placeholder="예: 내 스마트폰" autocomplete="off">
-            <button onclick="saveName()">시작하기</button>
+            <div class="modal-title">기기 이름 설정</div>
+            <div class="modal-desc">주변 기기에 표시될 이름을 입력해주세요.</div>
+            <input type="text" id="userNameInput" class="modal-input" placeholder="예: 내 스마트폰" autocomplete="off">
+            <button class="modal-btn btn-primary" style="width: 100%;" onclick="saveName()">시작하기</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="alertModal">
+        <div class="modal-content">
+            <div class="modal-title" id="alertTitle">알림</div>
+            <div class="modal-desc" id="alertDesc">메시지</div>
+            <button class="modal-btn btn-primary" style="width: 100%;" onclick="closeAlert()">확인</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-title" id="confirmTitle">확인</div>
+            <div class="modal-desc" id="confirmDesc">메시지</div>
+            <div class="modal-actions">
+                <button class="modal-btn btn-secondary" onclick="closeConfirm(false)">취소</button>
+                <button class="modal-btn btn-primary" onclick="closeConfirm(true)">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="incomingModal">
+        <div class="modal-content">
+            <div style="font-size: 40px; color: var(--primary-color); margin-bottom: 10px;"><span class="material-symbols-outlined" style="font-size: 48px;">file_download</span></div>
+            <div class="modal-title" id="incomingTitle">파일 수신</div>
+            <div class="modal-desc" id="incomingDesc">누군가 파일을 보냈습니다.</div>
+            <div class="modal-actions">
+                <button class="modal-btn btn-secondary" onclick="handleIncoming(false)">거부</button>
+                <button class="modal-btn btn-primary" onclick="handleIncoming(true)">허용</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="progressModal">
+        <div class="modal-content">
+            <div class="modal-title">파일 다운로드 중...</div>
+            <div class="modal-desc" id="progressFilename" style="margin-bottom: 0;">파일명</div>
+            <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+            <div class="progress-text" id="progressPercent">0%</div>
         </div>
     </div>
 
@@ -102,10 +149,7 @@
                 <button class="icon-btn"><span class="material-symbols-outlined">arrow_back</span></button>
                 <span class="header-title">Quick Share</span>
             </div>
-            <div class="header-right">
-                <button class="icon-btn"><span class="material-symbols-outlined">help</span></button>
-                <button class="icon-btn"><span class="material-symbols-outlined">more_vert</span></button>
-            </div>
+            <div class="header-right"><button class="icon-btn"><span class="material-symbols-outlined">more_vert</span></button></div>
         </div>
         <div class="tabs">
             <button class="tab-btn active" id="tab-send" onclick="switchTab('send')">보내기</button>
@@ -114,14 +158,14 @@
     </header>
 
     <main id="main-content" style="opacity: 0; transition: opacity 0.5s;">
-        
         <div id="send-section">
             <div class="section-title">You'll appear as</div>
             <div class="card profile-wrap">
-                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" class="profile-img" id="profileImage">
-                <div class="profile-info">
-                    <span class="profile-name" id="displayUserName">Loading...</span>
+                <div class="profile-img-container" id="profileContainer">
+                    <div class="loading-ring"></div>
+                    <img src="" alt="Profile" class="profile-img" id="profileImage">
                 </div>
+                <div class="profile-info"><span class="profile-name" id="displayUserName">Loading...</span></div>
             </div>
 
             <div class="card">
@@ -136,16 +180,11 @@
                     <span class="material-symbols-outlined" style="color: var(--text-sub)">expand_more</span>
                 </div>
                 <input type="file" id="file-input-hidden" multiple onchange="handleFiles(this.files)">
-                
                 <div id="filePreviewContainer" class="file-preview-container"></div>
             </div>
 
             <div class="section-title">Send to nearby devices</div>
             <div class="card">
-                <div class="nearby-header">
-                    <div></div>
-                    <button class="qr-btn"><span class="material-symbols-outlined" style="font-size: 18px;">qr_code_scanner</span> Use QR code</button>
-                </div>
                 <div class="devices-scroll" id="nearbyDevicesContainer">
                     <p style="font-size: 13px; color: gray; width: 100%; text-align: center; padding: 20px 0;">주변 기기를 찾는 중...</p>
                 </div>
@@ -153,37 +192,56 @@
         </div>
 
         <div id="receive-section">
-            <div class="section-title">Incoming Files</div>
+            <div class="section-title">Incoming History</div>
             <div id="incomingFilesContainer">
-                <p style="font-size: 14px; color: gray; text-align: center; padding: 40px 0;">현재 수신 대기 중인 파일이 없습니다.<br><br>주변 기기에서 파일을 보내면<br>이곳에 표시됩니다.</p>
+                <p style="font-size: 14px; color: gray; text-align: center; padding: 40px 0;">대기 중인 파일이 감지되면<br>자동으로 알림이 표시됩니다.</p>
             </div>
         </div>
-
     </main>
 
     <script>
         const FLASK_SERVER_URL = "https://jaewondev5.pythonanywhere.com";
         let currentUser = localStorage.getItem('quickShareUserName');
-        let selectedFiles = []; // 선택된 파일 배열 보관
+        let selectedFiles = []; 
         let myDeviceId = localStorage.getItem('deviceId');
+        if (!myDeviceId) { myDeviceId = 'device_' + Math.random().toString(36).substr(2, 9); localStorage.setItem('deviceId', myDeviceId); }
 
-        if (!myDeviceId) {
-            myDeviceId = 'device_' + Math.random().toString(36).substr(2, 9);
-            localStorage.setItem('deviceId', myDeviceId);
+        let activeBatchId = null; // 발신자 상태 추적용
+        let incomingBatch = null; // 수신자 대기 파일 추적용
+        let isReceivingMode = false; // 중복 모달 방지
+
+        // --- Custom Modal Functions ---
+        let confirmCallback = null;
+        function customAlert(title, desc) {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertDesc').innerText = desc;
+            document.getElementById('alertModal').classList.add('active');
+        }
+        function closeAlert() { document.getElementById('alertModal').classList.remove('active'); }
+        
+        function customConfirm(title, desc, onConfirm) {
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmDesc').innerText = desc;
+            confirmCallback = onConfirm;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+        function closeConfirm(result) {
+            document.getElementById('confirmModal').classList.remove('active');
+            if(result && confirmCallback) confirmCallback();
+            confirmCallback = null;
         }
 
+        // --- Init ---
         window.onload = () => {
             if (!currentUser) {
                 document.getElementById('nameModal').classList.add('active');
                 document.getElementById('userNameInput').focus();
-            } else {
-                initializeApp();
-            }
+            } else { initializeApp(); }
         };
 
         function saveName() {
             const inputName = document.getElementById('userNameInput').value.trim();
-            if (inputName.length < 1) { alert("이름을 입력해주세요."); return; }
+            if (inputName.length < 1) { customAlert("알림", "이름을 입력해주세요."); return; }
             localStorage.setItem('quickShareUserName', inputName);
             currentUser = inputName;
             document.getElementById('nameModal').classList.remove('active');
@@ -195,26 +253,21 @@
             document.getElementById('profileImage').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser)}&background=random`;
             document.getElementById('main-content').style.opacity = '1';
             
-            // 통신 시작
             pollServer();
-            setInterval(pollServer, 3000); // 3초마다 주변 기기 및 수신 파일 폴링
+            setInterval(pollServer, 3000); 
+            setInterval(checkSenderStatus, 2000); // 발신자일 때 상대방 응답 체크
         }
 
-        // --- 탭 전환 로직 ---
         function switchTab(tab) {
             document.getElementById('send-section').style.display = (tab === 'send') ? 'block' : 'none';
             document.getElementById('receive-section').style.display = (tab === 'receive') ? 'block' : 'none';
-            
             document.getElementById('tab-send').classList.toggle('active', tab === 'send');
             document.getElementById('tab-receive').classList.toggle('active', tab === 'receive');
         }
 
-        // --- 파일 선택 및 개별 삭제 UI 로직 ---
         function handleFiles(files) {
-            for(let i=0; i<files.length; i++) {
-                selectedFiles.push(files[i]);
-            }
-            document.getElementById('file-input-hidden').value = ""; // input 초기화
+            for(let i=0; i<files.length; i++) selectedFiles.push(files[i]);
+            document.getElementById('file-input-hidden').value = ""; 
             updateFileUI();
         }
 
@@ -224,159 +277,182 @@
         }
 
         function updateFileUI() {
-            const countText = document.getElementById('fileCountText');
-            countText.innerText = selectedFiles.length === 0 ? "0 items" : `${selectedFiles.length} items`;
-
+            document.getElementById('fileCountText').innerText = selectedFiles.length === 0 ? "0 items" : `${selectedFiles.length} items`;
             const container = document.getElementById('filePreviewContainer');
             container.innerHTML = "";
-
             selectedFiles.forEach((file, index) => {
-                const isImage = file.type.startsWith('image/');
-                const previewSrc = isImage ? URL.createObjectURL(file) : null;
-                
-                const card = document.createElement('div');
-                card.className = 'file-card';
-                card.innerHTML = `
-                    <div class="file-card-info">
-                        ${isImage 
-                            ? `<img src="${previewSrc}" class="file-preview-img" alt="preview">` 
-                            : `<div class="file-preview-img"><span class="material-symbols-outlined">insert_drive_file</span></div>`
-                        }
-                        <span class="file-name">${file.name}</span>
-                    </div>
-                    <button class="delete-btn" onclick="removeFile(${index})">
-                        <span class="material-symbols-outlined">close</span>
-                    </button>
-                `;
-                container.appendChild(card);
+                const isImg = file.type.startsWith('image/');
+                const src = isImg ? URL.createObjectURL(file) : null;
+                container.innerHTML += `
+                    <div class="file-card">
+                        <div class="file-card-info">
+                            ${isImg ? `<img src="${src}" class="file-preview-img">` : `<div class="file-preview-img"><span class="material-symbols-outlined">insert_drive_file</span></div>`}
+                            <span class="file-name">${file.name}</span>
+                        </div>
+                        <button class="delete-btn" onclick="removeFile(${index})"><span class="material-symbols-outlined">close</span></button>
+                    </div>`;
             });
         }
 
-        // --- 백엔드 통신 로직 ---
+        // --- Network Logic ---
         async function pollServer() {
             try {
-                // 1. 생존 신고 및 등록
+                // 1. 생존 신고
                 await fetch(`${FLASK_SERVER_URL}/api/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ deviceId: myDeviceId, name: currentUser, type: 'Phone' })
                 });
 
-                // 2. 주변 기기 가져오기
+                // 2. 주변 기기 탐색
                 const nearbyRes = await fetch(`${FLASK_SERVER_URL}/api/nearby?deviceId=${myDeviceId}`);
-                const devices = await nearbyRes.json();
-                renderNearbyDevices(devices);
+                renderNearbyDevices(await nearbyRes.json());
 
-                // 3. 내게 온 파일 확인하기
-                const incomingRes = await fetch(`${FLASK_SERVER_URL}/api/check_files?deviceId=${myDeviceId}`);
-                const incomingData = await incomingRes.json();
-                renderIncomingFiles(incomingData);
-
-            } catch (error) {
-                console.error("서버 폴링 에러:", error);
-            }
+                // 3. 내게 온 파일 확인 (수신자)
+                if (!isReceivingMode) {
+                    const incomingRes = await fetch(`${FLASK_SERVER_URL}/api/check_files?deviceId=${myDeviceId}`);
+                    const incomingData = await incomingRes.json();
+                    if (incomingData.status === 'pending' && incomingData.files.length > 0) {
+                        showIncomingModal(incomingData.files);
+                    }
+                }
+            } catch (e) { console.log("서버 통신 대기 중..."); }
         }
 
         function renderNearbyDevices(devices) {
             const container = document.getElementById('nearbyDevicesContainer');
+            if (devices.length === 0) { container.innerHTML = `<p style="font-size: 13px; color: gray; width: 100%; text-align: center; padding: 20px 0;">주변에 기기가 없습니다.</p>`; return; }
             
-            if (devices.length === 0) {
-                container.innerHTML = `<p style="font-size: 13px; color: gray; width: 100%; text-align: center; padding: 20px 0;">주변에 기기가 없습니다.</p>`;
-                return;
-            }
-
             container.innerHTML = '';
             devices.forEach(device => {
-                const deviceDiv = document.createElement('div');
-                deviceDiv.className = 'device-item';
-                deviceDiv.onclick = () => sendFilesToDevice(device.id, device.name);
-                
-                deviceDiv.innerHTML = `
-                    <div class="device-icon-wrap"><span class="material-symbols-outlined">smartphone</span></div>
-                    <div class="device-name">${device.name}</div>
-                    <div class="device-type">${device.type}</div>
-                `;
-                container.appendChild(deviceDiv);
+                const div = document.createElement('div');
+                div.className = 'device-item';
+                div.onclick = () => {
+                    if (selectedFiles.length === 0) { customAlert("알림", "전송할 파일을 먼저 선택해주세요."); return; }
+                    customConfirm("파일 전송", `${device.name} 기기로 ${selectedFiles.length}개의 파일을 보내시겠습니까?`, () => sendFiles(device.id));
+                };
+                div.innerHTML = `<div class="device-icon-wrap"><span class="material-symbols-outlined">smartphone</span></div><div class="device-name">${device.name}</div>`;
+                container.appendChild(div);
             });
         }
 
-        async function sendFilesToDevice(targetDeviceId, targetName) {
-            if (selectedFiles.length === 0) {
-                alert("전송할 파일을 먼저 선택해주세요.");
-                return;
-            }
-            
-            const confirmSend = confirm(`${targetName} 기기로 ${selectedFiles.length}개의 파일을 전송하시겠습니까?`);
-            if (!confirmSend) return;
-
+        // --- SENDER LOGIC ---
+        async function sendFiles(targetDeviceId) {
             const formData = new FormData();
             formData.append('senderId', myDeviceId);
             formData.append('receiverId', targetDeviceId);
-            selectedFiles.forEach(file => { formData.append('files', file); });
+            selectedFiles.forEach(file => formData.append('files', file));
 
             try {
-                const res = await fetch(`${FLASK_SERVER_URL}/api/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if(res.ok) { 
-                    alert('전송이 완료되었습니다!'); 
-                    selectedFiles = []; // 전송 후 목록 초기화
-                    updateFileUI();
-                } else {
-                    alert('전송 실패');
+                const res = await fetch(`${FLASK_SERVER_URL}/api/upload`, { method: 'POST', body: formData });
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    // 프로필 로딩 애니메이션 시작 및 상태 추적 활성화
+                    document.getElementById('profileContainer').classList.add('loading');
+                    activeBatchId = data.batchId; 
+                    selectedFiles = []; updateFileUI();
                 }
-            } catch (e) { alert('서버 오류로 전송에 실패했습니다.'); }
+            } catch (e) { customAlert("오류", "서버 전송에 실패했습니다."); }
         }
 
-        function renderIncomingFiles(data) {
-            const container = document.getElementById('incomingFilesContainer');
-            
-            if (data.status === 'empty' || !data.files || data.files.length === 0) {
-                container.innerHTML = `<p style="font-size: 14px; color: gray; text-align: center; padding: 40px 0;">현재 수신 대기 중인 파일이 없습니다.<br><br>주변 기기에서 파일을 보내면<br>이곳에 표시됩니다.</p>`;
+        async function checkSenderStatus() {
+            if(!activeBatchId) return;
+            try {
+                const res = await fetch(`${FLASK_SERVER_URL}/api/status?batchId=${activeBatchId}`);
+                const data = await res.json();
                 
-                // 받기 탭에 배지(알림) 숨기기 (옵션)
-                document.getElementById('tab-receive').innerHTML = `받기`;
-                return;
+                if(data.status === 'completed') {
+                    document.getElementById('profileContainer').classList.remove('loading');
+                    activeBatchId = null;
+                    customAlert("전송 완료", "상대방이 파일을 다운로드했습니다.");
+                } else if (data.status === 'rejected') {
+                    document.getElementById('profileContainer').classList.remove('loading');
+                    activeBatchId = null;
+                    customAlert("전송 거절됨", "상대방이 파일 수신을 거부했습니다.");
+                }
+            } catch(e) {}
+        }
+
+        // --- RECEIVER LOGIC ---
+        function showIncomingModal(files) {
+            isReceivingMode = true;
+            incomingBatch = files;
+            const senderName = files[0].sender_name;
+            const fileCount = files.length;
+            const displayTitle = fileCount > 1 ? `${files[0].filename} 외 ${fileCount-1}개` : files[0].filename;
+            
+            document.getElementById('incomingTitle').innerText = `${senderName}님의 공유 요청`;
+            document.getElementById('incomingDesc').innerText = `[${displayTitle}] 파일을 받으시겠습니까?`;
+            document.getElementById('incomingModal').classList.add('active');
+            switchTab('receive'); // 탭 자동 전환
+        }
+
+        async function handleIncoming(isAccept) {
+            document.getElementById('incomingModal').classList.remove('active');
+            
+            if (!isAccept) {
+                // 거부 시
+                const batchId = incomingBatch[0].batch_id;
+                await fetch(`${FLASK_SERVER_URL}/api/discard?deviceId=${myDeviceId}&batchId=${batchId}`);
+                isReceivingMode = false;
+                incomingBatch = null;
+            } else {
+                // 허용 시 -> 프로그레스 바 띄우고 XHR 다운로드 시작
+                downloadWithProgress(incomingBatch[0]); 
+                // 단일 파일 데모 (여러 파일일 경우 루프 처리 가능)
+            }
+        }
+
+        function downloadWithProgress(fileData) {
+            document.getElementById('progressFilename').innerText = fileData.filename;
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressPercent').innerText = '0%';
+            document.getElementById('progressModal').classList.add('active');
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `${FLASK_SERVER_URL}/api/download?deviceId=${myDeviceId}&fileId=${fileData.id}`, true);
+            xhr.responseType = 'blob';
+
+            xhr.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = Math.floor((e.loaded / e.total) * 100);
+                    document.getElementById('progressBar').style.width = percentComplete + '%';
+                    document.getElementById('progressPercent').innerText = percentComplete + '%';
+                } else {
+                    document.getElementById('progressPercent').innerText = '다운로드 중...';
+                }
+            };
+
+            xhr.onload = function() {
+                if (this.status === 200) {
+                    document.getElementById('progressBar').style.width = '100%';
+                    document.getElementById('progressPercent').innerText = '100%';
+                    
+                    // 파일 저장 트리거
+                    const blob = this.response;
+                    const a = document.createElement('a');
+                    a.href = window.URL.createObjectURL(blob);
+                    a.download = fileData.filename;
+                    a.click();
+                    
+                    setTimeout(() => {
+                        document.getElementById('progressModal').classList.remove('active');
+                        isReceivingMode = false;
+                        incomingBatch = null;
+                    }, 500); // 100% 확인 후 0.5초 뒤 닫기
+                } else {
+                    document.getElementById('progressModal').classList.remove('active');
+                    customAlert("오류", "다운로드 중 문제가 발생했습니다.");
+                    isReceivingMode = false;
+                }
+            };
+
+            xhr.onerror = function() {
+                document.getElementById('progressModal').classList.remove('active');
+                customAlert("오류", "네트워크 에러가 발생했습니다.");
+                isReceivingMode = false;
             }
 
-            // 파일이 있을 경우 탭 이름에 알림 표시
-            document.getElementById('tab-receive').innerHTML = `받기 <span style="color:red; font-size:12px;">●</span>`;
-            
-            container.innerHTML = '';
-            data.files.forEach(file => {
-                const card = document.createElement('div');
-                card.className = 'incoming-card';
-                card.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <span class="material-symbols-outlined" style="color:var(--primary-color); font-size:32px;">download</span>
-                        <div style="overflow:hidden;">
-                            <div class="file-name" style="font-weight:bold;">${file.filename}</div>
-                            <div class="incoming-sender">보낸 사람: ${file.sender_name}</div>
-                        </div>
-                    </div>
-                    <div class="incoming-actions">
-                        <button class="btn-decline" onclick="discardFile('${file.id}')">거절</button>
-                        <button class="btn-accept" onclick="downloadFile('${file.id}')">다운로드</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function downloadFile(fileId) {
-            // 브라우저 다운로드 실행
-            window.location.href = `${FLASK_SERVER_URL}/api/download?deviceId=${myDeviceId}&fileId=${fileId}`;
-            // 다운로드 직후 UI 바로 갱신 (서버에서도 지워짐)
-            setTimeout(pollServer, 1000); 
-        }
-
-        async function discardFile(fileId) {
-            try {
-                await fetch(`${FLASK_SERVER_URL}/api/discard?deviceId=${myDeviceId}&fileId=${fileId}`);
-                pollServer(); // 즉시 리스트 갱신
-            } catch(e) { console.error("파일 거절 실패", e); }
+            xhr.send();
         }
     </script>
 </body>
